@@ -1,0 +1,50 @@
+{
+  "name": "nodejs-vue3-monorepo",
+  "version": "1.0.0",
+  "description": "Monorepo Node.js + Vue 3 avec pnpm",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "pnpm --parallel dev",
+    "dev:backend": "pnpm --filter backend dev",
+    "dev:frontend": "pnpm --filter frontend dev",
+    "build": "pnpm --parallel build",
+    "build:backend": "pnpm --filter backend build",
+    "build:frontend": "pnpm --filter frontend build",
+    "lint": "pnpm --parallel lint",
+    "lint-fix": "pnpm --parallel lint-fix",
+    "format-fix": "prettier --write .",
+    "format": "prettier --check .",
+    "type-check": "pnpm --parallel type-check",
+    "test": "pnpm --filter backend test",
+    "test:watch": "pnpm --filter backend test:watch",
+    "test:docker": "docker compose exec app pnpm test",
+    "prisma:docker:migrate:dev": "docker compose exec app pnpm prisma migrate dev",
+    "prisma:docker:migrate:deploy": "docker compose exec app pnpm prisma migrate deploy",
+    "prisma:docker:migrate:test": "docker compose exec app ./scripts/prisma-migrate-test.sh",
+    "db:test:reset": "docker compose exec app ./scripts/prisma-reset-test.sh",
+    "install:all": "pnpm install",
+    "clean": "pnpm --parallel clean",
+    "setup": "./scripts/setup.sh",
+    "docker:up": "docker-compose up",
+    "docker:down": "docker-compose down",
+    "docker:build": "docker-compose build",
+    "docker:logs": "docker-compose logs -f"
+  },
+  "keywords": [
+    "monorepo",
+    "nodejs",
+    "vue3",
+    "pnpm",
+    "docker"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "prettier": "^3.5.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  }
+}
