@@ -1,0 +1,16 @@
+{
+  "name": "kafka-service",
+  "version": "1.0.0",
+  "description": "Kafka service for microservices architecture",
+  "main": "admin.js",
+  "scripts": {
+    "start": "node admin.js",
+    "dev": "nodemon admin.js"
+  },
+  "dependencies": {
+    "kafkajs": "^2.2.4"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+} 
