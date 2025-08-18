@@ -5,9 +5,14 @@ import cookieParser from 'cookie-parser';
 
 // Infrastructure (Adapters)
 import { EventBus } from './infrastructure/adapters/EventBus';
+import { OrderServiceAdapter } from './infrastructure/adapters/OrderServiceAdapter';
 
 // Application (Use Cases)
-import { OrderService } from './application/usecases/OrderService';
+import { CreateOrderSaga } from './application/usecases/composite/CreateOrderSaga';
+import { ValidateCartUseCase } from './application/usecases/simple/ValidateCartUseCase';
+import { CalculateTotalUseCase } from './application/usecases/simple/CalculateTotalUseCase';
+import { GenerateOrderIdUseCase } from './application/usecases/simple/GenerateOrderIdUseCase';
+import { NormalizeCartUseCase } from './application/usecases/simple/NormalizeCartUseCase';
 
 // Controllers (Adapters)
 import { OrderController } from './infrastructure/controllers/OrderController';
@@ -17,7 +22,24 @@ const PORT: number = process.env['PORT'] ? parseInt(process.env['PORT'], 10) : 3
 
 // Initialisation des services
 const eventBus = new EventBus();
-const orderService = new OrderService(eventBus);
+
+// Initialisation des use cases simples
+const validateCartUseCase = new ValidateCartUseCase();
+const calculateTotalUseCase = new CalculateTotalUseCase();
+const generateOrderIdUseCase = new GenerateOrderIdUseCase();
+const normalizeCartUseCase = new NormalizeCartUseCase();
+
+// Initialisation du use case composite (Saga)
+const createOrderSaga = new CreateOrderSaga(
+  validateCartUseCase,
+  calculateTotalUseCase,
+  generateOrderIdUseCase,
+  normalizeCartUseCase,
+  eventBus
+);
+
+// Adapter pour implémenter IOrderService
+const orderService = new OrderServiceAdapter(createOrderSaga);
 const orderController = new OrderController(orderService);
 
 // Middlewares
