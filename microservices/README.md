@@ -79,3 +79,44 @@ cd microservices/analytic-service && npm run dev
 - **Scalabilité** : Chaque service peut être mis à l'échelle séparément
 - **Résilience** : Un service défaillant n'affecte pas les autres
 - **Technologies** : Possibilité d'utiliser différentes technologies par service 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+➜  dev-perso cd microservices/api-gateway && npm run dev
+➜  dev-perso cd microservices/payment-service && npm run dev
+➜  dev-perso cd microservices/order-service && npm run dev
+➜  dev-perso cd microservices/email-service && npm run dev
+➜  dev-perso cd microservices/analytic-service && npm run dev
+➜  monolithe git:(main) docker compose up -d
+cd microservices/kafka
+docker-compose up -d
+
+
+
+
+lsof -ti:3001, 3002, 3003, 3004, 3005
+kill -9 42741 42758 42775 42803
+
+
+lsof -ti:3005
+kill -9 62618
+
+faire des hexa 
+Saga Pattern 
+
+
+
+
+

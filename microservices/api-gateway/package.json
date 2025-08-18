@@ -6,7 +6,7 @@
   "type": "commonjs",
   "scripts": {
     "start": "node index.js",
-    "dev": "nodemon index.js"
+    "dev": "bash -c \"lsof -ti:3005 | xargs kill -9 2>/dev/null || true; sleep 1; nodemon index.js\""
   },
   "dependencies": {
     "kafkajs": "^2.2.4",

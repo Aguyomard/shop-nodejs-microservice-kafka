@@ -2,18 +2,17 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const cookieParser = require('cookie-parser');
-const { Kafka } = require('kafkajs');
+
+// Services
+const EventBus = require('./services/EventBus');
+const OrderService = require('./services/OrderService');
 
 const app = express();
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3005;
 
-// Configuration Kafka
-const kafka = new Kafka({
-  clientId: 'api-gateway',
-  brokers: ['localhost:9092']
-});
-
-const producer = kafka.producer();
+// Initialisation des services
+const eventBus = new EventBus();
+const orderService = new OrderService(eventBus);
 
 // Middlewares
 app.use(cors());
@@ -51,33 +50,13 @@ app.get('/test', async (req, res) => {
 
     console.log('🔄 API Gateway - Processing test order...');
     
-    // Envoyer vers le service de paiement
-    await producer.connect();
-    await producer.send({
-      topic: 'payments',
-      messages: [{ value: JSON.stringify({ cart, userId }) }]
-    });
-    console.log('💳 API Gateway - Payment message sent to Kafka');
-
-    // Envoyer vers le service de commande
-    await producer.send({
-      topic: 'orders',
-      messages: [{ value: JSON.stringify({ cart, userId }) }]
-    });
-    console.log('📦 API Gateway - Order message sent to Kafka');
-
-    // Envoyer vers le service d'email
-    await producer.send({
-      topic: 'emails',
-      messages: [{ value: JSON.stringify({ cart, userId, email: 'test@test.com' }) }]
-    });
-    console.log('📧 API Gateway - Email message sent to Kafka');
-
-    await producer.disconnect();
+    // ✅ Utiliser le service métier pour le test
+    const result = await orderService.createOrder(cart, userId);
 
     res.json({
       result: 200,
-      message: 'Test messages sent to microservices via Kafka!',
+      message: 'Test order processed via service layer!',
+      data: result,
       timestamp: new Date().toISOString()
     });
   } catch (error) {
@@ -96,42 +75,16 @@ app.post('/order', async (req, res) => {
     const { cart } = req.body;
     const userId = req.body.userId || 'test-user-123';
 
-    console.log('🔄 API Gateway - Processing order...');
-    console.log(' Cart:', cart);
+    console.log('🔄 API Gateway - Processing order request...');
+    console.log(' Cart details:', cart);
     console.log('👤 User ID:', userId);
 
-    await producer.connect();
+    // ✅ Délégation au service métier
+    const result = await orderService.createOrder(cart, userId);
 
-    // Envoyer vers le service de paiement
-    await producer.send({
-      topic: 'payments',
-      messages: [{ value: JSON.stringify({ cart, userId }) }]
-    });
-    console.log('💳 API Gateway - Payment message sent to Kafka');
+    console.log('✅ API Gateway - Order processed successfully');
 
-    // Envoyer vers le service de commande
-    await producer.send({
-      topic: 'orders',
-      messages: [{ value: JSON.stringify({ cart, userId }) }]
-    });
-    console.log('📦 API Gateway - Order message sent to Kafka');
-
-    // Envoyer vers le service d'email
-    await producer.send({
-      topic: 'emails',
-      messages: [{ value: JSON.stringify({ cart, userId, email: 'test@test.com' }) }]
-    });
-    console.log('📧 API Gateway - Email message sent to Kafka');
-
-    await producer.disconnect();
-
-    const timestamp = new Date().toISOString();
-
-    return res.json({
-      message: 'Order messages sent to microservices via Kafka!',
-      timestamp,
-      status: 'processing'
-    });
+    return res.json(result);
   } catch (error) {
     console.error('❌ API Gateway - Error processing order:', error);
 
