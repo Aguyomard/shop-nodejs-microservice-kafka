@@ -2,16 +2,27 @@
   "name": "analytic-service",
   "version": "1.0.0",
   "description": "Analytics microservice",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
-    "start": "node index.js",
-    "dev": "bash -c \"lsof -ti:3004 | xargs kill -9 2>/dev/null || true; sleep 1; nodemon index.js\""
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "nodemon",
+    "dev:watch": "nodemon",
+    "clean": "pkill -f 'analytic-service' 2>/dev/null || true"
   },
   "dependencies": {
-    "kafkajs": "^2.2.4",
-    "express": "^4.18.2"
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "helmet": "^8.1.0",
+    "kafkajs": "^2.2.4"
   },
   "devDependencies": {
-    "nodemon": "^3.0.1"
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.3",
+    "@types/helmet": "^0.0.48",
+    "@types/node": "^24.3.0",
+    "nodemon": "^3.1.10",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.2"
   }
-} 
+}
