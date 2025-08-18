@@ -64,14 +64,6 @@ export interface OrderResponse {
   timestamp: string;
 }
 
-// Types pour les services
-export interface IEventBus {
-  publish(eventType: EventType, data: any): Promise<void>;
-  connect(): Promise<void>;
-  disconnect(): Promise<void>;
-}
-
-export interface IOrderService {
-  createOrder(cart: Cart | CartItem[], userId: string): Promise<OrderResponse>;
-  getOrderStatus(orderId: string): Promise<OrderResponse>;
-} 
+// Export des ports organisés par catégorie
+export * from './primary';
+export * from './secondary'; 
