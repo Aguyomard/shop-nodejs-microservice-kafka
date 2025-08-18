@@ -3,9 +3,11 @@ import cors from 'cors';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 
-// Services (Ports)
-import { EventBus } from './services/EventBus';
-import { OrderService } from './services/OrderService';
+// Infrastructure (Adapters)
+import { EventBus } from './infrastructure/adapters/EventBus';
+
+// Application (Use Cases)
+import { OrderService } from './application/services/OrderService';
 
 // Controllers (Adapters)
 import { OrderController } from './infrastructure/controllers/OrderController';

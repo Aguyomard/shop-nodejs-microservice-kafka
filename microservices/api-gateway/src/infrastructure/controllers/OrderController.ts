@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { IOrderService, Cart, CartItem, ApiResponse, OrderResponse } from '../../types';
+import { IOrderService, Cart, CartItem, ApiResponse, OrderResponse } from '../../domain/ports';
 
 export class OrderController {
   constructor(private orderService: IOrderService) {}

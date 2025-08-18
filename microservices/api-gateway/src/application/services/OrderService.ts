@@ -1,4 +1,4 @@
-import { IEventBus, IOrderService, Cart, CartItem, OrderData, OrderResponse, PaymentData, EmailData } from '../types';
+import { IEventBus, IOrderService, Cart, CartItem, OrderData, OrderResponse, PaymentData, EmailData } from '../../domain/ports';
 
 export class OrderService implements IOrderService {
   constructor(private eventBus: IEventBus) {}
