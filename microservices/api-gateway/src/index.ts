@@ -7,7 +7,7 @@ import cookieParser from 'cookie-parser';
 import { EventBus } from './infrastructure/adapters/EventBus';
 
 // Application (Use Cases)
-import { OrderService } from './application/services/OrderService';
+import { OrderService } from './application/usecases/OrderService';
 
 // Controllers (Adapters)
 import { OrderController } from './infrastructure/controllers/OrderController';
