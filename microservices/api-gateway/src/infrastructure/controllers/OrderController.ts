@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
-import { IOrderService, Cart, CartItem, ApiResponse, OrderResponse } from '../../domain/ports';
+import { ICreateOrderSaga, Cart, CartItem, ApiResponse, OrderResponse } from '../../domain/ports';
 
 export class OrderController {
-  constructor(private orderService: IOrderService) {}
+  constructor(private createOrderSaga: ICreateOrderSaga) {}
 
   // Endpoint de test
   async testOrder(_req: Request, res: Response): Promise<void> {
@@ -13,7 +13,7 @@ export class OrderController {
       console.log('🔄 OrderController - Processing test order...');
       
       // ✅ Délégation au service métier
-      const result = await this.orderService.createOrder(cart, userId);
+      const result = await this.createOrderSaga.execute(cart, userId);
 
       const response: ApiResponse<OrderResponse> = {
         success: true,
@@ -48,7 +48,7 @@ export class OrderController {
       console.log('👤 User ID:', userId);
 
       // ✅ Délégation au service métier
-      const result = await this.orderService.createOrder(cart, userId);
+      const result = await this.createOrderSaga.execute(cart, userId);
 
       console.log('✅ OrderController - Order processed successfully');
 

@@ -5,7 +5,6 @@ import cookieParser from 'cookie-parser';
 
 // Infrastructure (Adapters)
 import { EventBus } from './infrastructure/adapters/EventBus';
-import { OrderServiceAdapter } from './infrastructure/adapters/OrderServiceAdapter';
 
 // Application (Use Cases)
 import { CreateOrderSaga } from './application/usecases/composite/CreateOrderSaga';
@@ -42,9 +41,8 @@ const createOrderSaga = new CreateOrderSaga(
   orderSagaOrchestrator
 );
 
-// Adapter pour implémenter IOrderService
-const orderService = new OrderServiceAdapter(createOrderSaga);
-const orderController = new OrderController(orderService);
+// Controller utilise directement le port primaire
+const orderController = new OrderController(createOrderSaga);
 
 // Middlewares
 app.use(cors());
