@@ -1,4 +1,4 @@
-// Use Cases Simples - Logique métier pure
+// Use Cases Atomiques - Logique métier pure et indivisible
 export * from './ValidateCartUseCase';
 export * from './CalculateTotalUseCase';
 export * from './GenerateOrderIdUseCase';

@@ -1,6 +1,7 @@
 import { Cart, CartItem } from '../../../domain/ports';
+import { IValidateCartUseCase } from '../interfaces/IValidateCartUseCase';
 
-export class ValidateCartUseCase {
+export class ValidateCartUseCase implements IValidateCartUseCase {
   execute(cart: Cart | CartItem[], userId: string): void {
     // Vérifier si cart est un tableau d'items ou un objet avec propriété items
     const items = Array.isArray(cart) ? cart : (cart?.items || []);

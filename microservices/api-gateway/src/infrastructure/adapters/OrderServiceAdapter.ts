@@ -1,8 +1,8 @@
 import { IOrderService, Cart, CartItem, OrderResponse } from '../../domain/ports';
-import { CreateOrderSaga } from '../../application/usecases/composite/CreateOrderSaga';
+import { ICreateOrderSaga } from '../../application/usecases/interfaces/ICreateOrderSaga';
 
 export class OrderServiceAdapter implements IOrderService {
-  constructor(private createOrderSaga: CreateOrderSaga) {}
+  constructor(private createOrderSaga: ICreateOrderSaga) {}
 
   async createOrder(cart: Cart | CartItem[], userId: string): Promise<OrderResponse> {
     return this.createOrderSaga.execute(cart, userId);

@@ -9,10 +9,11 @@ import { OrderServiceAdapter } from './infrastructure/adapters/OrderServiceAdapt
 
 // Application (Use Cases)
 import { CreateOrderSaga } from './application/usecases/composite/CreateOrderSaga';
-import { ValidateCartUseCase } from './application/usecases/simple/ValidateCartUseCase';
-import { CalculateTotalUseCase } from './application/usecases/simple/CalculateTotalUseCase';
-import { GenerateOrderIdUseCase } from './application/usecases/simple/GenerateOrderIdUseCase';
-import { NormalizeCartUseCase } from './application/usecases/simple/NormalizeCartUseCase';
+import { OrderSagaOrchestrator } from './application/usecases/composite/OrderSagaOrchestrator';
+import { ValidateCartUseCase } from './application/usecases/atomic/ValidateCartUseCase';
+import { CalculateTotalUseCase } from './application/usecases/atomic/CalculateTotalUseCase';
+import { GenerateOrderIdUseCase } from './application/usecases/atomic/GenerateOrderIdUseCase';
+import { NormalizeCartUseCase } from './application/usecases/atomic/NormalizeCartUseCase';
 
 // Controllers (Adapters)
 import { OrderController } from './infrastructure/controllers/OrderController';
@@ -23,11 +24,14 @@ const PORT: number = process.env['PORT'] ? parseInt(process.env['PORT'], 10) : 3
 // Initialisation des services
 const eventBus = new EventBus();
 
-// Initialisation des use cases simples
+// Initialisation des use cases atomiques
 const validateCartUseCase = new ValidateCartUseCase();
 const calculateTotalUseCase = new CalculateTotalUseCase();
 const generateOrderIdUseCase = new GenerateOrderIdUseCase();
 const normalizeCartUseCase = new NormalizeCartUseCase();
+
+// Initialisation de l'orchestrateur de Saga
+const orderSagaOrchestrator = new OrderSagaOrchestrator(eventBus);
 
 // Initialisation du use case composite (Saga)
 const createOrderSaga = new CreateOrderSaga(
@@ -35,7 +39,7 @@ const createOrderSaga = new CreateOrderSaga(
   calculateTotalUseCase,
   generateOrderIdUseCase,
   normalizeCartUseCase,
-  eventBus
+  orderSagaOrchestrator
 );
 
 // Adapter pour implémenter IOrderService

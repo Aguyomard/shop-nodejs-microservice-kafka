@@ -1,22 +1,21 @@
-import { IEventBus, Cart, CartItem, OrderData, OrderResponse } from '../../../domain/ports';
-import { ValidateCartUseCase } from '../simple/ValidateCartUseCase';
-import { CalculateTotalUseCase } from '../simple/CalculateTotalUseCase';
-import { GenerateOrderIdUseCase } from '../simple/GenerateOrderIdUseCase';
-import { NormalizeCartUseCase } from '../simple/NormalizeCartUseCase';
-import { OrderSagaOrchestrator } from './OrderSagaOrchestrator';
+import { Cart, CartItem, OrderData, OrderResponse } from '../../../domain/ports';
+import { 
+  IValidateCartUseCase,
+  ICalculateTotalUseCase,
+  IGenerateOrderIdUseCase,
+  INormalizeCartUseCase,
+  ICreateOrderSaga,
+  IOrderSagaOrchestrator
+} from '../interfaces';
 
-export class CreateOrderSaga {
-  private orchestrator: OrderSagaOrchestrator;
-
+export class CreateOrderSaga implements ICreateOrderSaga {
   constructor(
-    private validateCartUseCase: ValidateCartUseCase,
-    private calculateTotalUseCase: CalculateTotalUseCase,
-    private generateOrderIdUseCase: GenerateOrderIdUseCase,
-    private normalizeCartUseCase: NormalizeCartUseCase,
-    eventBus: IEventBus
-  ) {
-    this.orchestrator = new OrderSagaOrchestrator(eventBus);
-  }
+    private validateCartUseCase: IValidateCartUseCase,
+    private calculateTotalUseCase: ICalculateTotalUseCase,
+    private generateOrderIdUseCase: IGenerateOrderIdUseCase,
+    private normalizeCartUseCase: INormalizeCartUseCase,
+    private orderSagaOrchestrator: IOrderSagaOrchestrator
+  ) {}
 
   async execute(cart: Cart | CartItem[], userId: string): Promise<OrderResponse> {
     try {
@@ -25,19 +24,19 @@ export class CreateOrderSaga {
       // 1. Validation métier
       this.validateCartUseCase.execute(cart, userId);
       
-      // 2. Calcul du total
-      const total = this.calculateTotalUseCase.execute(cart);
+      // 2. Normalisation du format du cart (en premier pour éviter la duplication)
+      const normalizedCartItems = this.normalizeCartUseCase.execute(cart);
       
-      // 3. Génération de l'ID de commande
+      // 3. Calcul du total avec le cart normalisé
+      const total = this.calculateTotalUseCase.execute(normalizedCartItems);
+      
+      // 4. Génération de l'ID de commande
       const orderId = this.generateOrderIdUseCase.execute();
-      
-      // 4. Normalisation du format du cart
-      const normalizedCart = this.normalizeCartUseCase.execute(cart);
       
       // 5. Préparation des données de commande
       const orderData: OrderData = {
         orderId,
-        cart: normalizedCart,
+        cart: { items: normalizedCartItems }, // Convertir en format Cart
         userId,
         total,
         status: 'pending',
@@ -47,7 +46,7 @@ export class CreateOrderSaga {
       console.log('📦 CreateOrderSaga - Order data prepared:', { orderId, total });
 
       // 6. Démarrer l'orchestration de la Saga
-      await this.orchestrator.startOrderSaga(orderData);
+      await this.orderSagaOrchestrator.startOrderSaga(orderData);
 
       console.log('✅ CreateOrderSaga - Order creation saga initiated successfully');
 

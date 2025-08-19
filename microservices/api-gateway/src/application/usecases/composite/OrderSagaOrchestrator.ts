@@ -1,6 +1,7 @@
 import { IEventBus, OrderData, PaymentData, EmailData } from '../../../domain/ports';
+import { IOrderSagaOrchestrator } from '../interfaces/IOrderSagaOrchestrator';
 
-export class OrderSagaOrchestrator {
+export class OrderSagaOrchestrator implements IOrderSagaOrchestrator {
   constructor(private eventBus: IEventBus) {
     this.setupEventListeners();
   }
