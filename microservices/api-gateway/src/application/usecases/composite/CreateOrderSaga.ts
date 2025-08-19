@@ -1,10 +1,9 @@
-import { Cart, CartItem, OrderData, OrderResponse } from '../../../domain/ports';
+import { Cart, CartItem, OrderData, OrderResponse, ICreateOrderSaga } from '../../../domain/ports';
 import { 
   IValidateCartUseCase,
   ICalculateTotalUseCase,
   IGenerateOrderIdUseCase,
   INormalizeCartUseCase,
-  ICreateOrderSaga,
   IOrderSagaOrchestrator
 } from '../interfaces';
 

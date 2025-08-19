@@ -1,5 +1,4 @@
-import { IOrderService, Cart, CartItem, OrderResponse } from '../../domain/ports';
-import { ICreateOrderSaga } from '../../application/usecases/interfaces/ICreateOrderSaga';
+import { IOrderService, Cart, CartItem, OrderResponse, ICreateOrderSaga } from '../../domain/ports';
 
 export class OrderServiceAdapter implements IOrderService {
   constructor(private createOrderSaga: ICreateOrderSaga) {}
