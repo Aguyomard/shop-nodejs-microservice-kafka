@@ -38,8 +38,6 @@ export interface PaymentRequest {
 export type EventType = 
   // Événements de demande
   | 'payment.requested'
-  | 'payment.processed'
-  | 'payment.failed'
   | 'analytics.event'
   // Événements de résultat pour la Saga
   | 'payment.success'

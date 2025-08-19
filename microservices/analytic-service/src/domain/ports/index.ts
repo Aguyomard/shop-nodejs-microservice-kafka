@@ -25,8 +25,7 @@ export interface AnalyticsData {
 
 // Types pour les événements
 export type EventType = 
-  | 'analytics.processed'
-  | 'analytics.failed';
+  | 'analytics.event';
 
 export interface EventMessage {
   eventType: EventType;

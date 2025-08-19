@@ -43,7 +43,7 @@ export class EventBus implements IEventBus {
       correlationId: `corr_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
     };
 
-    const topic = this.getTopicForEvent(eventType);
+    const topic = this.getTopicForEvent();
     
     await this.producer.send({
       topic,
@@ -58,13 +58,8 @@ export class EventBus implements IEventBus {
     console.log(`📤 Analytic Service EventBus - Published ${eventType} to ${topic}`);
   }
 
-  private getTopicForEvent(eventType: EventType): string {
-    switch (eventType) {
-      case 'analytics.processed':
-      case 'analytics.failed':
-        return 'analytics_processed';
-      default:
-        return 'analytics_processed';
-    }
+  private getTopicForEvent(): string {
+    // Tous les événements analytics vont vers le topic 'analytics'
+    return 'analytics';
   }
 } 

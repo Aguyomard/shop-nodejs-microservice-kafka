@@ -60,7 +60,6 @@ export class EventBus implements IEventBus {
     const eventToTopicMap: Record<EventType, string> = {
       // Événements de demande
       'payment.requested': 'payments',
-      'payment.processed': 'payment_success',
       'analytics.event': 'analytics',
       // Événements de résultat pour la Saga
       'payment.success': 'payments',

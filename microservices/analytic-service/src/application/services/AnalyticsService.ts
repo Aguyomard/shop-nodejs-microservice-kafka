@@ -3,7 +3,10 @@ import { IAnalyticsService, IEventBus, AnalyticsData, AnalyticsResult } from '..
 export class AnalyticsService implements IAnalyticsService {
   private orderMetrics: Map<string, any> = new Map();
 
-  constructor(private eventBus: IEventBus) {}
+  constructor(_eventBus: IEventBus) {
+    // EventBus n'est plus utilisé après le nettoyage
+    // Gardé pour compatibilité avec l'interface
+  }
 
   async processEvent(eventData: AnalyticsData): Promise<AnalyticsResult> {
     try {
@@ -101,15 +104,6 @@ export class AnalyticsService implements IAnalyticsService {
       total: orderMetrics.total,
       itemCount: orderMetrics.itemCount
     });
-
-    // Publier l'événement analytics traité
-    await this.eventBus.publish('analytics.processed', {
-      eventId,
-      eventType: 'order.created',
-      orderId,
-      metrics: orderMetrics,
-      processedAt: new Date().toISOString()
-    });
   }
 
   private async trackOrderConfirmed(eventData: AnalyticsData, eventId: string): Promise<void> {
@@ -130,14 +124,6 @@ export class AnalyticsService implements IAnalyticsService {
         eventId,
         orderId,
         processingTime: existingMetrics.processingTime
-      });
-
-      await this.eventBus.publish('analytics.processed', {
-        eventId,
-        eventType: 'order.confirmed',
-        orderId,
-        metrics: existingMetrics,
-        processedAt: new Date().toISOString()
       });
     }
   }
@@ -161,14 +147,6 @@ export class AnalyticsService implements IAnalyticsService {
         orderId,
         cancelReason: existingMetrics.cancelReason
       });
-
-      await this.eventBus.publish('analytics.processed', {
-        eventId,
-        eventType: 'order.cancelled',
-        orderId,
-        metrics: existingMetrics,
-        processedAt: new Date().toISOString()
-      });
     }
   }
 
@@ -191,14 +169,6 @@ export class AnalyticsService implements IAnalyticsService {
         orderId,
         paymentAmount: existingMetrics.paymentAmount
       });
-
-      await this.eventBus.publish('analytics.processed', {
-        eventId,
-        eventType: 'payment.success',
-        orderId,
-        metrics: existingMetrics,
-        processedAt: new Date().toISOString()
-      });
     }
   }
 
@@ -220,14 +190,6 @@ export class AnalyticsService implements IAnalyticsService {
         eventId,
         orderId,
         paymentError: existingMetrics.paymentError
-      });
-
-      await this.eventBus.publish('analytics.processed', {
-        eventId,
-        eventType: 'payment.failed',
-        orderId,
-        metrics: existingMetrics,
-        processedAt: new Date().toISOString()
       });
     }
   }
