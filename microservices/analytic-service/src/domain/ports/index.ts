@@ -46,4 +46,6 @@ export interface IAnalyticsService {
   processEvent(eventData: AnalyticsData): Promise<AnalyticsResult>;
   validateEvent(eventData: AnalyticsData): boolean;
   generateEventId(): string;
+  getOrderMetrics(orderId: string): any;
+  getAllOrderMetrics(): any[];
 } 

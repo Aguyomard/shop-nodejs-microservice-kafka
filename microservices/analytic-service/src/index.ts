@@ -9,6 +9,9 @@ import { AnalyticsConsumer } from './infrastructure/adapters/AnalyticsConsumer';
 // Application (Use Cases)
 import { AnalyticsService } from './application/services/AnalyticsService';
 
+// Infrastructure (Controllers)
+import { AnalyticsController } from './infrastructure/controllers/AnalyticsController';
+
 const app: Application = express();
 const PORT: number = process.env['PORT'] ? parseInt(process.env['PORT'], 10) : 3006;
 
@@ -21,6 +24,7 @@ app.use(express.json());
 const eventBus = new EventBus();
 const analyticsService = new AnalyticsService(eventBus);
 const analyticsConsumer = new AnalyticsConsumer(analyticsService);
+const analyticsController = new AnalyticsController(analyticsService);
 
 // Endpoint de santé
 app.get('/health', (_req, res) => {
@@ -33,14 +37,25 @@ app.get('/health', (_req, res) => {
   });
 });
 
+// Routes Analytics
+app.get('/analytics/orders', (req, res) => analyticsController.getAllOrderMetrics(req, res));
+app.get('/analytics/orders/:orderId', (req, res) => analyticsController.getOrderMetrics(req, res));
+app.get('/analytics/orders/stats/summary', (req, res) => analyticsController.getOrderStatsSummary(req, res));
+
 // Endpoint de test
 app.post('/test-analytics', async (_req, res) => {
   try {
     const testAnalyticsData = {
-      eventType: 'test_event',
+      eventType: 'order.created',
       orderId: 'test-order-123',
       userId: 'test-user-123',
-      data: { test: 'data' },
+      data: { 
+        total: 99.99,
+        cart: [
+          { id: 'item1', name: 'Test Item', price: 49.99 },
+          { id: 'item2', name: 'Test Item 2', price: 50.00 }
+        ]
+      },
       timestamp: new Date().toISOString()
     };
 
@@ -49,7 +64,7 @@ app.post('/test-analytics', async (_req, res) => {
     res.json({
       success: true,
       data: result,
-      message: 'Test analytics processed',
+      message: 'Test order analytics processed',
       timestamp: new Date().toISOString()
     });
 

@@ -26,6 +26,10 @@ export class OrderSagaOrchestrator {
       // Étape 1: Créer la commande
       await this.eventBus.publish('order.created', orderData);
       console.log('📤 OrderSagaOrchestrator - Published order.created');
+      
+      // Publier l'événement analytics
+      await this.publishOrderAnalytics('order.created', orderData);
+      console.log('📊 OrderSagaOrchestrator - Published order.created analytics');
     } catch (error) {
       console.error('❌ OrderSagaOrchestrator - Error starting saga:', error);
       throw error;
@@ -59,6 +63,10 @@ export class OrderSagaOrchestrator {
     console.log('✅ OrderSagaOrchestrator - Payment successful, confirming order');
     
     try {
+      // Publier l'événement analytics de paiement réussi
+      await this.publishOrderAnalytics('payment.success', paymentData);
+      console.log('📊 OrderSagaOrchestrator - Published payment.success analytics');
+      
       // Étape 3a: Confirmer la commande
       const orderData: OrderData = {
         orderId: paymentData.orderId,
@@ -71,6 +79,10 @@ export class OrderSagaOrchestrator {
       
       await this.eventBus.publish('order.confirmed', orderData);
       console.log('📤 OrderSagaOrchestrator - Published order.confirmed');
+      
+      // Publier l'événement analytics
+      await this.publishOrderAnalytics('order.confirmed', orderData);
+      console.log('📊 OrderSagaOrchestrator - Published order.confirmed analytics');
       
       // Étape 3b: Demander l'envoi d'email
       const emailData: EmailData = {
@@ -92,6 +104,10 @@ export class OrderSagaOrchestrator {
     console.log('❌ OrderSagaOrchestrator - Payment failed, cancelling order');
     
     try {
+      // Publier l'événement analytics de paiement échoué
+      await this.publishOrderAnalytics('payment.failed', paymentData);
+      console.log('📊 OrderSagaOrchestrator - Published payment.failed analytics');
+      
       // Compensation: Annuler la commande
       const orderData: OrderData = {
         orderId: paymentData.orderId,
@@ -104,6 +120,10 @@ export class OrderSagaOrchestrator {
       
       await this.eventBus.publish('order.cancelled', orderData);
       console.log('📤 OrderSagaOrchestrator - Published order.cancelled');
+      
+      // Publier l'événement analytics
+      await this.publishOrderAnalytics('order.cancelled', orderData);
+      console.log('📊 OrderSagaOrchestrator - Published order.cancelled analytics');
     } catch (compensationError) {
       console.error('❌ OrderSagaOrchestrator - Error cancelling order:', compensationError);
     }
@@ -126,5 +146,28 @@ export class OrderSagaOrchestrator {
     console.log('❌ OrderSagaOrchestrator - Order creation failed:', error);
     // La saga s'arrête ici car la commande n'a pas pu être créée
     console.log('🛑 OrderSagaOrchestrator - Order saga failed at creation step');
+  }
+
+  // Méthode privée pour publier les événements analytics
+  private async publishOrderAnalytics(eventType: string, data: any): Promise<void> {
+    try {
+      const analyticsData = {
+        eventType,
+        orderId: data.orderId,
+        userId: data.userId,
+        data: {
+          total: data.total,
+          cart: data.cart,
+          status: data.status
+        },
+        timestamp: new Date().toISOString()
+      };
+
+      await this.eventBus.publish('analytics.event', analyticsData);
+      console.log('📊 OrderSagaOrchestrator - Published analytics event:', eventType);
+    } catch (error) {
+      console.error('❌ OrderSagaOrchestrator - Error publishing analytics:', error);
+      // Ne pas faire échouer la saga si l'analytics échoue
+    }
   }
 } 
