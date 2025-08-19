@@ -58,9 +58,13 @@ export class EventBus implements IEventBus {
 
   private getTopicForEvent(eventType: EventType): string {
     const eventToTopicMap: Record<EventType, string> = {
+      // Événements de demande
+      'payment.requested': 'payments',
       'payment.processed': 'payment_success',
-      'payment.failed': 'payment_failed',
-      'analytics.event': 'analytics'
+      'analytics.event': 'analytics',
+      // Événements de résultat pour la Saga
+      'payment.success': 'payments',
+      'payment.failed': 'payments'
     };
 
     const topic = eventToTopicMap[eventType];

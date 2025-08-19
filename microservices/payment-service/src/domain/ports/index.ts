@@ -36,9 +36,14 @@ export interface PaymentRequest {
 
 // Types pour les événements
 export type EventType = 
+  // Événements de demande
+  | 'payment.requested'
   | 'payment.processed'
   | 'payment.failed'
-  | 'analytics.event';
+  | 'analytics.event'
+  // Événements de résultat pour la Saga
+  | 'payment.success'
+  | 'payment.failed';
 
 export interface EventMessage {
   eventType: EventType;

@@ -1,7 +1,6 @@
-import { IEmailService, IEventBus, EmailData, EmailResult } from '../../domain/ports';
+import { IEmailService, EmailData, EmailResult } from '../../domain/ports';
 
 export class EmailService implements IEmailService {
-  constructor(private eventBus: IEventBus) {}
 
   async sendEmail(emailData: EmailData): Promise<EmailResult> {
     try {
@@ -13,46 +12,18 @@ export class EmailService implements IEmailService {
       }
 
       // Simulation de l'envoi d'email
-      const success = Math.random() > 0.02; // 98% de succès
-      
-      if (success) {
-        const messageId = this.generateMessageId();
-        const result: EmailResult = {
-          orderId: emailData.orderId,
-          success: true,
-          messageId,
-          sentAt: new Date().toISOString()
-        };
+      await this.simulateEmailSending(emailData);
 
-        // Publier l'événement de succès
-        await this.eventBus.publish('email.sent', {
-          orderId: emailData.orderId,
-          messageId,
-          type: emailData.type,
-          sentAt: result.sentAt
-        });
+      const messageId = this.generateMessageId();
+      const result: EmailResult = {
+        orderId: emailData.orderId,
+        success: true,
+        messageId,
+        sentAt: new Date().toISOString()
+      };
 
-        console.log('✅ EmailService - Email sent successfully', { orderId: emailData.orderId, messageId });
-        return result;
-
-      } else {
-        const result: EmailResult = {
-          orderId: emailData.orderId,
-          success: false,
-          error: 'Email sending failed',
-          sentAt: new Date().toISOString()
-        };
-
-        // Publier l'événement d'échec
-        await this.eventBus.publish('email.failed', {
-          orderId: emailData.orderId,
-          error: result.error,
-          sentAt: result.sentAt
-        });
-
-        console.log('❌ EmailService - Email sending failed', { orderId: emailData.orderId });
-        return result;
-      }
+      console.log('✅ EmailService - Email sent successfully', { orderId: emailData.orderId, messageId });
+      return result;
 
     } catch (error) {
       console.error('❌ EmailService - Error sending email:', error);
@@ -64,15 +35,25 @@ export class EmailService implements IEmailService {
         sentAt: new Date().toISOString()
       };
 
-      // Publier l'événement d'échec
-      await this.eventBus.publish('email.failed', {
-        orderId: emailData.orderId,
-        error: result.error,
-        sentAt: result.sentAt
-      });
+
 
       return result;
     }
+  }
+
+  private async simulateEmailSending(emailData: EmailData): Promise<void> {
+    // Simulation d'un envoi d'email (SMTP, API, etc.)
+    console.log('📧 EmailService - Sending email via SMTP...', { orderId: emailData.orderId });
+    
+    // Simuler un délai d'envoi
+    await new Promise(resolve => setTimeout(resolve, 800));
+    
+    // Simuler un échec aléatoire (2% de chance)
+    if (Math.random() < 0.02) {
+      throw new Error('SMTP server unavailable');
+    }
+    
+    console.log('📧 EmailService - Email sent via SMTP successfully');
   }
 
   validateEmail(emailData: EmailData): boolean {

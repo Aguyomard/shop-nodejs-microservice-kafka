@@ -37,9 +37,16 @@ export interface OrderRequest {
 
 // Types pour les événements
 export type EventType = 
+  // Événements de demande
+  | 'order.created'
   | 'order.processed'
   | 'order.failed'
-  | 'analytics.event';
+  | 'analytics.event'
+  // Événements de résultat pour la Saga
+  | 'order.created.success'
+  | 'order.created.failed'
+  | 'order.confirmed'
+  | 'order.cancelled';
 
 export interface EventMessage {
   eventType: EventType;

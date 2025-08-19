@@ -16,7 +16,7 @@ export interface OrderData {
   cart: Cart;
   userId: string;
   total: number;
-  status: 'pending' | 'processing' | 'completed' | 'failed';
+  status: 'pending' | 'processing' | 'completed' | 'failed' | 'cancelled';
   createdAt: string;
 }
 
@@ -36,10 +36,21 @@ export interface EmailData {
 
 // Types pour les événements
 export type EventType = 
+  // Événements de demande
   | 'order.created'
   | 'payment.requested'
   | 'email.requested'
-  | 'analytics.event';
+  | 'analytics.event'
+  // Événements de succès
+  | 'order.created.success'
+  | 'payment.success'
+  | 'email.sent.success'
+  | 'order.confirmed'
+  // Événements d'échec
+  | 'order.created.failed'
+  | 'payment.failed'
+  | 'email.sent.failed'
+  | 'order.cancelled';
 
 export interface EventMessage {
   eventType: EventType;

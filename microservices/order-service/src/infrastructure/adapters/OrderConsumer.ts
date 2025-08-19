@@ -1,12 +1,15 @@
 import { Kafka, Consumer } from 'kafkajs';
-import { IOrderService } from '../../domain/ports';
+import { IOrderService, IEventBus } from '../../domain/ports';
 
 export class OrderConsumer {
   private kafka: Kafka;
   private consumer: Consumer;
   private isConnected: boolean = false;
 
-  constructor(private orderService: IOrderService) {
+  constructor(
+    private orderService: IOrderService,
+    private eventBus: IEventBus
+  ) {
     this.kafka = new Kafka({
       clientId: 'order-service-consumer',
       brokers: ['localhost:9092']
@@ -36,15 +39,9 @@ export class OrderConsumer {
     await this.connect();
 
     await this.consumer.run({
-      eachMessage: async ({ topic, partition, message }) => {
+      eachMessage: async ({ message }) => {
         try {
-          console.log('📥 OrderConsumer - Received message:', {
-            topic,
-            partition,
-            offset: message.offset,
-            key: message.key?.toString(),
-            value: message.value?.toString()
-          });
+          console.log('📥 OrderConsumer - Received message from orders topic');
 
           if (!message.value) {
             console.log('⚠️ OrderConsumer - Empty message received');
@@ -52,18 +49,45 @@ export class OrderConsumer {
           }
 
           const eventMessage = JSON.parse(message.value.toString());
-          console.log('🔄 OrderConsumer - Processing event message:', eventMessage);
+          console.log('🔄 OrderConsumer - Processing event:', eventMessage.eventType);
 
-          // Extraire les données de commande du wrapper EventMessage
-          const orderData = eventMessage.data;
-          console.log('🔄 OrderConsumer - Extracted order data:', orderData);
+          // Traiter seulement l'événement 'order.created'
+          if (eventMessage.eventType === 'order.created') {
+            const orderData = eventMessage.data;
+            console.log('🔄 OrderConsumer - Processing order creation:', orderData);
 
-          // Traiter la commande
-          const result = await this.orderService.processOrder(orderData);
-          console.log('✅ OrderConsumer - Order processing completed:', result);
+            // Traiter la commande
+            const result = await this.orderService.processOrder(orderData);
+            
+            // Publier le résultat selon le succès/échec
+            if (result.success) {
+              await this.eventBus.publish('order.created.success', orderData);
+              console.log('✅ OrderConsumer - Published order.created.success');
+            } else {
+              await this.eventBus.publish('order.created.failed', {
+                orderData,
+                error: result.error
+              });
+              console.log('❌ OrderConsumer - Published order.created.failed');
+            }
+          }
 
         } catch (error) {
           console.error('❌ OrderConsumer - Error processing message:', error);
+          
+          // En cas d'erreur, publier l'échec
+          try {
+            const eventMessage = JSON.parse(message.value?.toString() || '{}');
+            if (eventMessage.eventType === 'order.created') {
+              await this.eventBus.publish('order.created.failed', {
+                orderData: eventMessage.data,
+                error: error instanceof Error ? error.message : 'Unknown error'
+              });
+              console.log('❌ OrderConsumer - Published order.created.failed due to error');
+            }
+          } catch (publishError) {
+            console.error('❌ OrderConsumer - Error publishing failure event:', publishError);
+          }
         }
       }
     });

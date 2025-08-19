@@ -19,8 +19,8 @@ app.use(express.json());
 
 // Initialisation des services
 const eventBus = new EventBus();
-const orderService = new OrderService(eventBus);
-const orderConsumer = new OrderConsumer(orderService);
+const orderService = new OrderService();
+const orderConsumer = new OrderConsumer(orderService, eventBus);
 
 // Endpoint de santé
 app.get('/health', (_req, res) => {

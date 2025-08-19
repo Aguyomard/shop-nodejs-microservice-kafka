@@ -19,8 +19,8 @@ app.use(express.json());
 
 // Initialisation des services
 const eventBus = new EventBus();
-const emailService = new EmailService(eventBus);
-const emailConsumer = new EmailConsumer(emailService);
+const emailService = new EmailService();
+const emailConsumer = new EmailConsumer(emailService, eventBus);
 
 // Endpoint de santé
 app.get('/health', (_req, res) => {

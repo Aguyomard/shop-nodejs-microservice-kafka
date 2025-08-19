@@ -19,8 +19,8 @@ app.use(express.json());
 
 // Initialisation des services
 const eventBus = new EventBus();
-const paymentService = new PaymentService(eventBus);
-const paymentConsumer = new PaymentConsumer(paymentService);
+const paymentService = new PaymentService();
+const paymentConsumer = new PaymentConsumer(paymentService, eventBus);
 
 // Endpoint de santé
 app.get('/health', (_req, res) => {

@@ -59,14 +59,24 @@ export class EventBus implements IEventBus {
   }
 
   private getTopicForEvent(eventType: EventType): string {
-    switch (eventType) {
-      case 'order.processed':
-      case 'order.failed':
-        return 'analytics';
-      case 'analytics.event':
-        return 'analytics';
-      default:
-        return 'analytics';
+    const eventToTopicMap: Record<EventType, string> = {
+      // Événements de demande
+      'order.created': 'orders',
+      'order.processed': 'analytics',
+      'order.failed': 'analytics',
+      'analytics.event': 'analytics',
+      // Événements de résultat pour la Saga
+      'order.created.success': 'orders',
+      'order.created.failed': 'orders',
+      'order.confirmed': 'orders',
+      'order.cancelled': 'orders'
+    };
+
+    const topic = eventToTopicMap[eventType];
+    if (!topic) {
+      throw new Error(`Unknown event type: ${eventType}`);
     }
+
+    return topic;
   }
 } 

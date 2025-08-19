@@ -1,17 +1,22 @@
-import { IEventBus, Cart, CartItem, OrderData, OrderResponse, PaymentData, EmailData } from '../../../domain/ports';
+import { IEventBus, Cart, CartItem, OrderData, OrderResponse } from '../../../domain/ports';
 import { ValidateCartUseCase } from '../simple/ValidateCartUseCase';
 import { CalculateTotalUseCase } from '../simple/CalculateTotalUseCase';
 import { GenerateOrderIdUseCase } from '../simple/GenerateOrderIdUseCase';
 import { NormalizeCartUseCase } from '../simple/NormalizeCartUseCase';
+import { OrderSagaOrchestrator } from './OrderSagaOrchestrator';
 
 export class CreateOrderSaga {
+  private orchestrator: OrderSagaOrchestrator;
+
   constructor(
     private validateCartUseCase: ValidateCartUseCase,
     private calculateTotalUseCase: CalculateTotalUseCase,
     private generateOrderIdUseCase: GenerateOrderIdUseCase,
     private normalizeCartUseCase: NormalizeCartUseCase,
-    private eventBus: IEventBus
-  ) {}
+    eventBus: IEventBus
+  ) {
+    this.orchestrator = new OrderSagaOrchestrator(eventBus);
+  }
 
   async execute(cart: Cart | CartItem[], userId: string): Promise<OrderResponse> {
     try {
@@ -41,10 +46,10 @@ export class CreateOrderSaga {
 
       console.log('📦 CreateOrderSaga - Order data prepared:', { orderId, total });
 
-      // 6. Publication des événements (Saga Pattern)
-      await this.publishOrderEvents(orderData);
+      // 6. Démarrer l'orchestration de la Saga
+      await this.orchestrator.startOrderSaga(orderData);
 
-      console.log('✅ CreateOrderSaga - Order creation saga completed successfully');
+      console.log('✅ CreateOrderSaga - Order creation saga initiated successfully');
 
       return {
         orderId,
@@ -54,42 +59,8 @@ export class CreateOrderSaga {
       };
 
     } catch (error) {
-      console.error('❌ CreateOrderSaga - Error in order creation saga:', error);
+      console.error('❌ CreateOrderSaga - Error creating order:', error);
       throw error;
-    }
-  }
-
-  private async publishOrderEvents(orderData: OrderData): Promise<void> {
-    // Saga Pattern : Publier les événements dans l'ordre
-    const events = [
-      {
-        type: 'order.created' as const,
-        data: orderData
-      },
-      {
-        type: 'payment.requested' as const,
-        data: {
-          orderId: orderData.orderId,
-          cart: orderData.cart,
-          userId: orderData.userId,
-          total: orderData.total
-        } as PaymentData
-      },
-      {
-        type: 'email.requested' as const,
-        data: {
-          orderId: orderData.orderId,
-          userId: orderData.userId,
-          email: 'test@test.com', // TODO: Get from user service
-          type: 'order_confirmation'
-        } as EmailData
-      }
-    ];
-
-    // Publier les événements séquentiellement
-    for (const event of events) {
-      await this.eventBus.publish(event.type, event.data);
-      console.log(`📤 CreateOrderSaga - Published ${event.type}`);
     }
   }
 } 
