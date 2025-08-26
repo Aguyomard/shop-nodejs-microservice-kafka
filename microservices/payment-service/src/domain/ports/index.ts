@@ -34,14 +34,20 @@ export interface PaymentRequest {
   customerId: string;
 }
 
-// Types pour les événements
+// Types pour les événements - Nouvelle architecture Commands vs Events
 export type EventType = 
-  // Événements de demande
-  | 'payment.requested'
-  | 'analytics.event'
-  // Événements de résultat pour la Saga
-  | 'payment.success'
-  | 'payment.failed';
+  // COMMANDS (ce qu'on veut faire)
+  | 'payment.process'
+  | 'payment.refund'
+  | 'payment.capture'
+  | 'analytics.collect'
+  // EVENTS (ce qui s'est passé)
+  | 'payment.started'
+  | 'payment.completed'
+  | 'payment.failed'
+  | 'payment.refunded'
+  | 'payment.captured'
+  | 'analytics.collected';
 
 export interface EventMessage {
   eventType: EventType;

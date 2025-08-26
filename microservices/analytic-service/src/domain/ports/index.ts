@@ -23,9 +23,16 @@ export interface AnalyticsData {
   timestamp: string;
 }
 
-// Types pour les événements
+// Types pour les événements - Nouvelle architecture Commands vs Events
 export type EventType = 
-  | 'analytics.event';
+  // COMMANDS (ce qu'on veut faire)
+  | 'analytics.collect'
+  | 'analytics.export'
+  // EVENTS (ce qui s'est passé)
+  | 'analytics.collected'
+  | 'analytics.exported'
+  | 'analytics.collection.failed'
+  | 'analytics.export.failed';
 
 export interface EventMessage {
   eventType: EventType;

@@ -13,10 +13,20 @@ const createTopics = async () => {
     console.log('🔌 Connected to Kafka');
 
     const topics = [
-      { topic: 'orders', numPartitions: 3, replicationFactor: 1 },
-      { topic: 'payments', numPartitions: 3, replicationFactor: 1 },
-      { topic: 'emails', numPartitions: 3, replicationFactor: 1 },
-      { topic: 'analytics', numPartitions: 3, replicationFactor: 1 }
+      // Topics pour Commands (ce qu'on veut faire)
+      { topic: 'orders-commands', numPartitions: 3, replicationFactor: 1 },
+      { topic: 'payments-commands', numPartitions: 3, replicationFactor: 1 },
+      { topic: 'emails-commands', numPartitions: 3, replicationFactor: 1 },
+      { topic: 'analytics-commands', numPartitions: 3, replicationFactor: 1 },
+      
+      // Topics pour Events (ce qui s'est passé)
+      { topic: 'orders-events', numPartitions: 3, replicationFactor: 1 },
+      { topic: 'payments-events', numPartitions: 3, replicationFactor: 1 },
+      { topic: 'emails-events', numPartitions: 3, replicationFactor: 1 },
+      { topic: 'analytics-events', numPartitions: 3, replicationFactor: 1 },
+      
+      // Topic cross-domain
+      { topic: 'business-events', numPartitions: 3, replicationFactor: 1 }
     ];
 
     await admin.createTopics({
@@ -25,6 +35,7 @@ const createTopics = async () => {
     });
 
     console.log('✅ Topics created successfully');
+    console.log('📋 New architecture: Commands vs Events separation');
     
     const existingTopics = await admin.listTopics();
     console.log('📋 Existing topics:', existingTopics);

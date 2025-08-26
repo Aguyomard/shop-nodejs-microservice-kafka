@@ -57,21 +57,20 @@ export class EventBus implements IEventBus {
   }
 
   private getTopicForEvent(eventType: EventType): string {
-    const eventToTopicMap: Record<EventType, string> = {
-      // Événements de demande
-      'payment.requested': 'payments',
-      'analytics.event': 'analytics',
-      // Événements de résultat pour la Saga
-      'payment.success': 'payments',
-      'payment.failed': 'payments'
-    };
-
-    const topic = eventToTopicMap[eventType];
-    if (!topic) {
-      throw new Error(`Unknown event type: ${eventType}`);
+    // COMMANDS (ce qu'on veut faire) → Topics commands
+    if (eventType.endsWith('.process') || eventType.endsWith('.refund') || 
+        eventType.endsWith('.capture') || eventType.endsWith('.collect')) {
+      
+      if (eventType.startsWith('payment.')) return 'payments-commands';
+      if (eventType.startsWith('analytics.')) return 'analytics-commands';
     }
-
-    return topic;
+    
+    // EVENTS (ce qui s'est passé) → Topics events
+    if (eventType.startsWith('payment.')) return 'payments-events';
+    if (eventType.startsWith('analytics.')) return 'analytics-events';
+    
+    // Fallback pour les événements cross-domain
+    return 'business-events';
   }
 
   private generateCorrelationId(): string {

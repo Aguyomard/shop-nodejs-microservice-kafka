@@ -23,7 +23,7 @@ app.use(express.json());
 // Initialisation des services
 const eventBus = new EventBus();
 const analyticsService = new AnalyticsService(eventBus);
-const analyticsConsumer = new AnalyticsConsumer(analyticsService);
+const analyticsConsumer = new AnalyticsConsumer(analyticsService, eventBus);
 const analyticsController = new AnalyticsController(analyticsService);
 
 // Endpoint de santé

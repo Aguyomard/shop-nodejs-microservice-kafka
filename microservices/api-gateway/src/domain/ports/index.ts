@@ -34,23 +34,36 @@ export interface EmailData {
   type: 'order_confirmation' | 'payment_confirmation' | 'shipping_notification';
 }
 
-// Types pour les événements
+// Types pour les événements - Nouvelle architecture Commands vs Events
 export type EventType = 
-  // Événements de demande
+  // COMMANDS (ce qu'on veut faire)
+  | 'order.create'
+  | 'order.update'
+  | 'order.confirm'
+  | 'order.cancel'
+  | 'payment.process'
+  | 'payment.refund'
+  | 'payment.capture'
+  | 'email.send'
+  | 'email.schedule'
+  | 'email.cancel'
+  | 'analytics.collect'
+  | 'analytics.export'
+  // EVENTS (ce qui s'est passé)
   | 'order.created'
-  | 'payment.requested'
-  | 'email.requested'
-  | 'analytics.event'
-  // Événements de succès
-  | 'order.created.success'
-  | 'payment.success'
-  | 'email.sent.success'
+  | 'order.updated'
   | 'order.confirmed'
-  // Événements d'échec
-  | 'order.created.failed'
+  | 'order.cancelled'
+  | 'order.creation.failed'
+  | 'payment.started'
+  | 'payment.completed'
   | 'payment.failed'
-  | 'email.sent.failed'
-  | 'order.cancelled';
+  | 'payment.refunded'
+  | 'email.sent'
+  | 'email.failed'
+  | 'email.delivered'
+  | 'analytics.collected'
+  | 'analytics.exported';
 
 export interface EventMessage {
   eventType: EventType;

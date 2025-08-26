@@ -35,18 +35,23 @@ export interface OrderRequest {
   total: number;
 }
 
-// Types pour les événements
+// Types pour les événements - Nouvelle architecture Commands vs Events
 export type EventType = 
-  // Événements de demande
+  // COMMANDS (ce qu'on veut faire)
+  | 'order.create'
+  | 'order.update'
+  | 'order.confirm'
+  | 'order.cancel'
+  | 'analytics.collect'
+  // EVENTS (ce qui s'est passé)
   | 'order.created'
+  | 'order.updated'
+  | 'order.confirmed'
+  | 'order.cancelled'
+  | 'order.creation.failed'
   | 'order.processed'
   | 'order.failed'
-  | 'analytics.event'
-  // Événements de résultat pour la Saga
-  | 'order.created.success'
-  | 'order.created.failed'
-  | 'order.confirmed'
-  | 'order.cancelled';
+  | 'analytics.collected';
 
 export interface EventMessage {
   eventType: EventType;

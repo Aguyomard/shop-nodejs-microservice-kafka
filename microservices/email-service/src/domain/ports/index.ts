@@ -22,16 +22,20 @@ export interface EmailRequest {
   template?: string;
 }
 
-// Types pour les événements
+// Types pour les événements - Nouvelle architecture Commands vs Events
 export type EventType = 
-  // Événements de demande
-  | 'email.requested'
+  // COMMANDS (ce qu'on veut faire)
+  | 'email.send'
+  | 'email.schedule'
+  | 'email.cancel'
+  | 'analytics.collect'
+  // EVENTS (ce qui s'est passé)
   | 'email.sent'
   | 'email.failed'
-  | 'analytics.event'
-  // Événements de résultat pour la Saga
-  | 'email.sent.success'
-  | 'email.sent.failed';
+  | 'email.scheduled'
+  | 'email.cancelled'
+  | 'email.delivered'
+  | 'analytics.collected';
 
 export interface EventMessage {
   eventType: EventType;

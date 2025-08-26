@@ -1,0 +1,5 @@
+http://localhost:8081/ui/clusters/local/all-topics?perPage=25
+http://localhost:3002/health
+http://localhost:5173/clothing-shop
+
+

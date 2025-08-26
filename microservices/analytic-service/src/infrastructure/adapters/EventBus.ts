@@ -43,7 +43,7 @@ export class EventBus implements IEventBus {
       correlationId: `corr_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
     };
 
-    const topic = this.getTopicForEvent();
+    const topic = this.getTopicForEvent(eventType);
     
     await this.producer.send({
       topic,
@@ -58,8 +58,18 @@ export class EventBus implements IEventBus {
     console.log(`📤 Analytic Service EventBus - Published ${eventType} to ${topic}`);
   }
 
-  private getTopicForEvent(): string {
-    // Tous les événements analytics vont vers le topic 'analytics'
-    return 'analytics';
+  private getTopicForEvent(eventType: EventType): string {
+    // COMMANDS (ce qu'on veut faire) → Topics commands
+    if (eventType.endsWith('.collect') || eventType.endsWith('.export')) {
+      return 'analytics-commands';
+    }
+    
+    // EVENTS (ce qui s'est passé) → Topics events
+    if (eventType.startsWith('analytics.')) {
+      return 'analytics-events';
+    }
+    
+    // Fallback pour les événements cross-domain
+    return 'business-events';
   }
 } 

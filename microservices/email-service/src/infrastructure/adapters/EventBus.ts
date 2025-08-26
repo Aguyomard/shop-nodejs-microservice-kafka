@@ -59,22 +59,19 @@ export class EventBus implements IEventBus {
   }
 
   private getTopicForEvent(eventType: EventType): string {
-    const eventToTopicMap: Record<EventType, string> = {
-      // Événements de demande
-      'email.requested': 'emails',
-      'email.sent': 'analytics',
-      'email.failed': 'analytics',
-      'analytics.event': 'analytics',
-      // Événements de résultat pour la Saga
-      'email.sent.success': 'emails',
-      'email.sent.failed': 'emails'
-    };
-
-    const topic = eventToTopicMap[eventType];
-    if (!topic) {
-      throw new Error(`Unknown event type: ${eventType}`);
+    // COMMANDS (ce qu'on veut faire) → Topics commands
+    if (eventType.endsWith('.send') || eventType.endsWith('.schedule') || 
+        eventType.endsWith('.cancel') || eventType.endsWith('.collect')) {
+      
+      if (eventType.startsWith('email.')) return 'emails-commands';
+      if (eventType.startsWith('analytics.')) return 'analytics-commands';
     }
-
-    return topic;
+    
+    // EVENTS (ce qui s'est passé) → Topics events
+    if (eventType.startsWith('email.')) return 'emails-events';
+    if (eventType.startsWith('analytics.')) return 'analytics-events';
+    
+    // Fallback pour les événements cross-domain
+    return 'business-events';
   }
 } 

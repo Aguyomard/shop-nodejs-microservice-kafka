@@ -98,30 +98,28 @@ export class EventBus implements IEventBus {
   }
 
   private getTopicForEvent(eventType: EventType): string {
-    const eventToTopicMap: Record<EventType, string> = {
-      // Événements de demande
-      'order.created': 'orders',
-      'payment.requested': 'payments',
-      'email.requested': 'emails',
-      'analytics.event': 'analytics',
-      // Événements de succès
-      'order.created.success': 'orders',
-      'payment.success': 'payments',
-      'email.sent.success': 'emails',
-      'order.confirmed': 'orders',
-      // Événements d'échec
-      'order.created.failed': 'orders',
-      'payment.failed': 'payments',
-      'email.sent.failed': 'emails',
-      'order.cancelled': 'orders'
-    };
-
-    const topic = eventToTopicMap[eventType];
-    if (!topic) {
-      throw new Error(`Unknown event type: ${eventType}`);
+    // COMMANDS (ce qu'on veut faire) → Topics commands
+    if (eventType.endsWith('.create') || eventType.endsWith('.update') || 
+        eventType.endsWith('.confirm') || eventType.endsWith('.cancel') ||
+        eventType.endsWith('.process') || eventType.endsWith('.refund') ||
+        eventType.endsWith('.capture') || eventType.endsWith('.send') ||
+        eventType.endsWith('.schedule') || eventType.endsWith('.collect') ||
+        eventType.endsWith('.export')) {
+      
+      if (eventType.startsWith('order.')) return 'orders-commands';
+      if (eventType.startsWith('payment.')) return 'payments-commands';
+      if (eventType.startsWith('email.')) return 'emails-commands';
+      if (eventType.startsWith('analytics.')) return 'analytics-commands';
     }
-
-    return topic;
+    
+    // EVENTS (ce qui s'est passé) → Topics events
+    if (eventType.startsWith('order.')) return 'orders-events';
+    if (eventType.startsWith('payment.')) return 'payments-events';
+    if (eventType.startsWith('email.')) return 'emails-events';
+    if (eventType.startsWith('analytics.')) return 'analytics-events';
+    
+    // Fallback pour les événements cross-domain
+    return 'business-events';
   }
 
   private generateCorrelationId(): string {
