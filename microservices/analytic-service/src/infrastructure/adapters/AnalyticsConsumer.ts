@@ -56,7 +56,7 @@ export class AnalyticsConsumer {
 
           const commandMessage = JSON.parse(message.value.toString());
           console.log('🔄 AnalyticsConsumer - Processing analytics command:', commandMessage.eventType);
-
+          
           // 🔄 NOUVEAU : Traiter les COMMANDS et publier les EVENTS
           switch (commandMessage.eventType) {
             case 'analytics.collect':

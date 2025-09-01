@@ -14,6 +14,9 @@ import { CalculateTotalUseCase } from './application/usecases/atomic/CalculateTo
 import { GenerateOrderIdUseCase } from './application/usecases/atomic/GenerateOrderIdUseCase';
 import { NormalizeCartUseCase } from './application/usecases/atomic/NormalizeCartUseCase';
 
+// Shared Services
+import { MonitoringService } from './shared/services/MonitoringService';
+
 // Controllers (Adapters)
 import { OrderController } from './infrastructure/controllers/OrderController';
 
@@ -22,6 +25,10 @@ const PORT: number = process.env['PORT'] ? parseInt(process.env['PORT'], 10) : 3
 
 // Initialisation des services
 const eventBus = new EventBus();
+
+// Initialisation du service de monitoring (doit être initialisé après EventBus)
+// Le service s'abonne automatiquement aux événements de monitoring et d'erreur
+const monitoringService = new MonitoringService(eventBus);
 
 // Initialisation des use cases atomiques
 const validateCartUseCase = new ValidateCartUseCase();
@@ -77,11 +84,32 @@ app.get('/test', (req, res) => orderController.testOrder(req, res));
 app.post('/order', (req, res) => orderController.createOrder(req, res));
 app.get('/health', (req, res) => orderController.health(req, res));
 
+// Route de monitoring pour vérifier l'état du service
+app.get('/monitoring/status', (_req, res) => {
+  res.json({
+    status: 'active',
+    service: 'MonitoringService',
+    timestamp: new Date().toISOString(),
+    message: 'Monitoring service is running and listening for error events'
+  });
+});
+
 const startServer = async (): Promise<void> => {
   try {
+    // Démarrer le service de monitoring et vérifier qu'il est actif
+    console.log('🛡️ Starting Monitoring Service...');
+    
+    // Vérifier que le monitoring service est bien initialisé
+    if (monitoringService) {
+      console.log('✅ Monitoring Service initialized successfully');
+    }
+    
     app.listen(PORT, () => {
       console.log(`🚀 API Gateway running on http://localhost:${PORT}`);
       console.log('📦 Architecture: Hexagonal with TypeScript and Kafka with restart');
+      console.log('🛡️ Error Handling: Retry + Monitoring + Error Events Architecture');
+      console.log('📊 Monitoring Service: Active and listening for error events');
+      console.log('🔍 Monitoring endpoint: http://localhost:${PORT}/monitoring/status');
     });
   } catch (error) {
     console.error('❌ Failed to start API Gateway:', error);

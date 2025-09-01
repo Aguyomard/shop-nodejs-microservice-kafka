@@ -25,6 +25,11 @@ const createTopics = async () => {
       { topic: 'emails-events', numPartitions: 3, replicationFactor: 1 },
       { topic: 'analytics-events', numPartitions: 3, replicationFactor: 1 },
       
+      // Topics pour la Gestion d'Erreurs (Architecture Classique)
+      { topic: 'error-events', numPartitions: 3, replicationFactor: 1 },
+      { topic: 'dead-letter-queue', numPartitions: 3, replicationFactor: 1 },
+      { topic: 'monitoring-events', numPartitions: 3, replicationFactor: 1 },
+      
       // Topic cross-domain
       { topic: 'business-events', numPartitions: 3, replicationFactor: 1 }
     ];
@@ -35,7 +40,7 @@ const createTopics = async () => {
     });
 
     console.log('✅ Topics created successfully');
-    console.log('📋 New architecture: Commands vs Events separation');
+    console.log('📋 New architecture: Commands vs Events + Error Handling');
     
     const existingTopics = await admin.listTopics();
     console.log('📋 Existing topics:', existingTopics);

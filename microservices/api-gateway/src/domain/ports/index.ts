@@ -63,7 +63,22 @@ export type EventType =
   | 'email.failed'
   | 'email.delivered'
   | 'analytics.collected'
-  | 'analytics.exported';
+  | 'analytics.exported'
+  // ERROR HANDLING (Architecture Classique)
+  | 'error.retry_exhausted'
+  | 'error.circuit_breaker_open'
+  | 'error.timeout'
+  | 'error.validation_failed'
+  | 'error.business_rule_violation'
+  | 'error.infrastructure_failure'
+  | 'error.dead_letter_queued'
+  | 'error.manual_intervention_required'
+  // MONITORING & OBSERVABILITY
+  | 'monitoring.failure'
+  | 'monitoring.retry_attempt'
+  | 'monitoring.circuit_breaker_state_change'
+  | 'monitoring.service_health_check'
+  | 'monitoring.performance_metrics';
 
 export interface EventMessage {
   eventType: EventType;

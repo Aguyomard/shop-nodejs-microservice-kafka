@@ -98,6 +98,16 @@ export class EventBus implements IEventBus {
   }
 
   private getTopicForEvent(eventType: EventType): string {
+    // ERROR EVENTS → Topics d'erreurs spécialisés (Architecture Classique)
+    if (eventType.startsWith('error.')) {
+      return 'error-events';
+    }
+    
+    // MONITORING EVENTS → Topics de monitoring et observabilité
+    if (eventType.startsWith('monitoring.')) {
+      return 'monitoring-events';
+    }
+    
     // COMMANDS (ce qu'on veut faire) → Topics commands
     if (eventType.endsWith('.create') || eventType.endsWith('.update') || 
         eventType.endsWith('.confirm') || eventType.endsWith('.cancel') ||
